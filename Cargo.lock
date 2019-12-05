@@ -8,3 +8,7 @@ version = "0.1.0"
 name = "aoc-2019-day2"
 version = "0.1.0"
 
+[[package]]
+name = "aoc-2019-day3"
+version = "0.1.0"
+
