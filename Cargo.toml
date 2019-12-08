@@ -5,5 +5,6 @@ members = [
   "2019/day3",
   "2019/day4",
   "2019/day5",
+  "2019/day6",
   "2019/intcode"
 ]

@@ -24,6 +24,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc-2019-day6"
+version = "0.1.0"
+
+[[package]]
 name = "aoc-2019-intcode"
 version = "0.1.0"
 
