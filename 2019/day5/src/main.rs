@@ -14,12 +14,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
 
     println!("part 1");
-    Intcode::with_capacity(program.len())
-        .load(program.clone())
-        .run(1);
+    println!("{:?}", Intcode::load(program.clone()).run(vec![1]).output);
 
     println!("part 2");
-    Intcode::with_capacity(program.len()).load(program).run(5);
+    println!("{:?}", Intcode::load(program).run(vec![5]).output);
 
     Ok(())
 }

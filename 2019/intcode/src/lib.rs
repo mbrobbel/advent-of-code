@@ -1,28 +1,52 @@
-#[derive(Debug)]
-pub struct Memory {
-    data: Vec<isize>,
+use std::{collections::VecDeque, ops::Index};
+
+#[derive(Copy, Clone, Debug)]
+enum Instruction {
+    /// 1 [a, b, dest]
+    Add(isize, isize, usize),
+    /// 2 [a, b, dest]
+    Mul(isize, isize, usize),
+    /// 3 [dest]
+    Input(usize),
+    /// 4 [value]
+    Output(isize),
+    /// 5 [cond, dest]
+    JumpIfTrue(isize, usize),
+    /// 6 [cond, dest]
+    JumpIfFalse(isize, usize),
+    /// 7 [a, b, dest]
+    LessThan(isize, isize, usize),
+    /// 8 [a, b, dest]
+    Equals(isize, isize, usize),
+    /// 99
+    Halt,
 }
 
-#[derive(Debug)]
-enum Instruction {
-    // 1 [a, b, dest]
-    Add(isize, isize, usize),
-    // 2 [a, b, dest]
-    Mul(isize, isize, usize),
-    // 3 [dest]
-    Input(usize),
-    // 4 [value]
-    Output(isize),
-    // 5 [cond, dest]
-    JumpIfTrue(isize, usize),
-    // 6 [cond, dest]
-    JumpIfFalse(isize, usize),
-    // 7 [a, b, dest]
-    LessThan(isize, isize, usize),
-    // 8 [a, b, dest]
-    Equals(isize, isize, usize),
-    // 99
-    Halt,
+impl Instruction {
+    fn jump(&self, pc: usize) -> usize {
+        match self {
+            Instruction::Add(_, _, _)
+            | Instruction::Mul(_, _, _)
+            | Instruction::LessThan(_, _, _)
+            | Instruction::Equals(_, _, _) => pc + 4,
+            Instruction::Input(_) | Instruction::Output(_) => pc + 2,
+            Instruction::JumpIfFalse(a, dest) => {
+                if *a == 0 {
+                    *dest
+                } else {
+                    pc + 3
+                }
+            }
+            Instruction::JumpIfTrue(a, dest) => {
+                if *a != 0 {
+                    *dest
+                } else {
+                    pc + 3
+                }
+            }
+            _ => pc,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -36,84 +60,55 @@ impl From<isize> for ParameterMode {
         match input {
             0 => ParameterMode::Position,
             1 => ParameterMode::Immediate,
-            _ => panic!(),
+            _ => unreachable!(),
         }
     }
 }
 
-impl ParameterMode {
-    fn decode(instruction: isize) -> Vec<ParameterMode> {
-        vec![
-            (instruction / 100 % 10).into(),
-            (instruction / 1000 % 10).into(),
-        ]
+#[derive(Debug)]
+pub struct Memory {
+    data: Vec<isize>,
+}
+
+impl Index<usize> for Memory {
+    type Output = isize;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
     }
 }
 
 impl Memory {
-    fn with_capacity(capacity: usize) -> Self {
-        Memory {
-            data: vec![0; capacity],
-        }
-    }
-
-    fn init(&mut self, program: Program) {
-        for (i, x) in program.iter().enumerate() {
-            self.data[i] = *x;
-        }
-    }
-
-    fn load(&self, address: Address, len: usize) -> &[isize] {
-        &self.data[address..address + len]
+    fn init(program: Program) -> Self {
+        Memory { data: program }
     }
 
     fn store(&mut self, address: Address, value: isize) {
         self.data[address] = value;
     }
 
-    fn get_param(&self, value: isize, mode: ParameterMode) -> isize {
-        match mode {
-            ParameterMode::Position => self.data[value as usize],
-            ParameterMode::Immediate => value,
-        }
-    }
+    fn decode(&self, address: Address) -> Instruction {
+        let mut mem = self.data.iter().skip(address).copied();
+        let mut next = || mem.next().unwrap();
+        let opcode = next();
 
-    fn fetch_instruction(&self, address: Address) -> Instruction {
-        let i: isize = self.data[address];
-        let mode = ParameterMode::decode(i);
-        match i % 100 {
-            1 => Instruction::Add(
-                self.get_param(self.data[address + 1], mode[0]),
-                self.get_param(self.data[address + 2], mode[1]),
-                self.data[address + 3] as usize,
-            ),
-            2 => Instruction::Mul(
-                self.get_param(self.data[address + 1], mode[0]),
-                self.get_param(self.data[address + 2], mode[1]),
-                self.data[address + 3] as usize,
-            ),
-            3 => Instruction::Input(self.data[address + 1] as usize),
-            4 => Instruction::Output(self.get_param(self.data[address + 1], mode[0])),
-            5 => Instruction::JumpIfTrue(
-                self.get_param(self.data[address + 1], mode[0]),
-                self.get_param(self.data[address + 2], mode[1]) as usize,
-            ),
-            6 => Instruction::JumpIfFalse(
-                self.get_param(self.data[address + 1], mode[0]),
-                self.get_param(self.data[address + 2], mode[1]) as usize,
-            ),
-            7 => Instruction::LessThan(
-                self.get_param(self.data[address + 1], mode[0]),
-                self.get_param(self.data[address + 2], mode[1]),
-                self.data[address + 3] as usize,
-            ),
-            8 => Instruction::Equals(
-                self.get_param(self.data[address + 1], mode[0]),
-                self.get_param(self.data[address + 2], mode[1]),
-                self.data[address + 3] as usize,
-            ),
+        let mut modes = vec![(opcode / 100 % 10).into(), (opcode / 1000 % 10).into()].into_iter();
+        let mut mode = || modes.next().unwrap();
+        let mut param = || match mode() {
+            ParameterMode::Position => self.data[next() as usize],
+            ParameterMode::Immediate => next(),
+        };
+
+        match opcode % 100 {
+            1 => Instruction::Add(param(), param(), next() as usize),
+            2 => Instruction::Mul(param(), param(), next() as usize),
+            3 => Instruction::Input(next() as usize),
+            4 => Instruction::Output(param()),
+            5 => Instruction::JumpIfTrue(param(), param() as usize),
+            6 => Instruction::JumpIfFalse(param(), param() as usize),
+            7 => Instruction::LessThan(param(), param(), next() as usize),
+            8 => Instruction::Equals(param(), param(), next() as usize),
             99 => Instruction::Halt,
-            _ => panic!(),
+            _ => unreachable!(),
         }
     }
 }
@@ -121,68 +116,53 @@ impl Memory {
 #[derive(Debug)]
 pub struct Intcode {
     program_counter: usize,
-    memory: Memory,
+    pub memory: Memory,
+    pub input: VecDeque<isize>,
+    pub output: VecDeque<isize>,
 }
 
 impl Intcode {
-    pub fn with_capacity(capacity: usize) -> Self {
+    pub fn load(program: Program) -> Self {
         Intcode {
             program_counter: 0,
-            memory: Memory::with_capacity(((capacity + 3) / 4) * 4),
+            memory: Memory::init(program),
+            input: VecDeque::new(),
+            output: VecDeque::new(),
         }
     }
 
-    pub fn load(mut self, program: Program) -> Self {
-        self.memory.init(program);
-        self
-    }
-
-    pub fn run(mut self, input: isize) -> isize {
+    pub fn run<T: IntoIterator<Item = isize>>(&mut self, input: T) -> &mut Self {
+        self.input.extend(input);
         loop {
-            match self.memory.fetch_instruction(self.program_counter) {
+            let instruction = self.memory.decode(self.program_counter);
+            self.program_counter = instruction.jump(self.program_counter);
+            match instruction {
                 Instruction::Add(a, b, dest) => {
                     self.memory.store(dest, a + b);
-                    self.program_counter += 4;
                 }
                 Instruction::Mul(a, b, dest) => {
                     self.memory.store(dest, a * b);
-                    self.program_counter += 4;
                 }
                 Instruction::Input(dest) => {
-                    self.memory.store(dest, input);
-                    self.program_counter += 2;
+                    self.memory.store(dest, self.input.pop_front().unwrap());
                 }
                 Instruction::Output(value) => {
-                    println!("{}", value);
-                    self.program_counter += 2;
-                }
-                Instruction::JumpIfTrue(a, dest) => {
-                    if a != 0 {
-                        self.program_counter = dest;
-                    } else {
-                        self.program_counter += 3;
-                    }
-                }
-                Instruction::JumpIfFalse(a, dest) => {
-                    if a == 0 {
-                        self.program_counter = dest;
-                    } else {
-                        self.program_counter += 3;
-                    }
+                    self.output.push_back(value);
+                    break;
                 }
                 Instruction::LessThan(a, b, dest) => {
                     self.memory.store(dest, (a < b).into());
-                    self.program_counter += 4;
                 }
                 Instruction::Equals(a, b, dest) => {
                     self.memory.store(dest, (a == b).into());
-                    self.program_counter += 4;
                 }
                 Instruction::Halt => break,
+                _ => {}
             }
+            println!("{:?}", instruction);
+            println!("{:?}", self);
         }
-
-        self.memory.load(0, 1)[0]
+        self
     }
 }
 
@@ -193,14 +173,14 @@ type Address = usize;
 mod tests {
     use super::*;
 
-    fn test_program(program: Program) -> isize {
-        test_program_with_input(program, 0)
+    fn test_program_with_input(program: Program, input: isize) -> VecDeque<isize> {
+        let mut c = Intcode::load(program);
+        c.run(vec![input]);
+        c.output
     }
 
-    fn test_program_with_input(program: Program, input: isize) -> isize {
-        Intcode::with_capacity(program.len())
-            .load(program)
-            .run(input)
+    fn test_program(program: Program) -> isize {
+        Intcode::load(program).run(vec![0]).memory[0]
     }
 
     #[test]
@@ -239,9 +219,20 @@ mod tests {
                     36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
                     1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99
                 ],
+                8
+            ),
+            vec![1000]
+        );
+        assert_eq!(
+            test_program_with_input(
+                vec![
+                    3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0,
+                    36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
+                    1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99
+                ],
                 9
             ),
-            3
+            vec![1001]
         );
     }
 

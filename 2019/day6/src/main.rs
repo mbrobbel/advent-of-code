@@ -26,7 +26,7 @@ fn get_graph(input: &str) -> HashMap<String, Vec<String>> {
             |mut map: HashMap<String, Vec<String>>, (a, b)| {
                 map.entry(b)
                     .and_modify(|v| v.push(a.clone()))
-                    .or_insert(vec![a]);
+                    .or_insert_with(|| vec![a]);
                 map
             },
         )

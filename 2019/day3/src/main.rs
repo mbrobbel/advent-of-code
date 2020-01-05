@@ -31,7 +31,7 @@ impl FromStr for Move {
 }
 
 impl Move {
-    fn to_steps(self) -> impl Iterator<Item = (isize, isize)> {
+    fn into_steps(self) -> impl Iterator<Item = (isize, isize)> {
         std::iter::repeat(match self.direction {
             Direction::Right => (1, 0),
             Direction::Left => (-1, 0),
@@ -47,9 +47,9 @@ struct Circuit {
     steps: Vec<(isize, isize)>,
 }
 
-impl From<Circuit> for HashSet<(isize, isize)> {
-    fn from(circuit: Circuit) -> HashSet<(isize, isize)> {
-        circuit.steps.iter().cloned().collect()
+impl<S: Default + std::hash::BuildHasher> Into<HashSet<(isize, isize), S>> for Circuit {
+    fn into(self) -> HashSet<(isize, isize), S> {
+        self.steps.iter().cloned().collect()
     }
 }
 
@@ -61,7 +61,7 @@ impl FromStr for Circuit {
                 .split(',')
                 .map(Move::from_str)
                 .map(Result::unwrap)
-                .flat_map(Move::to_steps)
+                .flat_map(Move::into_steps)
                 .scan((0, 0), |position, step| {
                     position.0 += step.0;
                     position.1 += step.1;
@@ -82,7 +82,7 @@ fn part_one(input: &str) -> usize {
     wires
         .iter()
         .cloned()
-        .map(|x| HashSet::from(x))
+        .map(Into::<HashSet<(isize, isize)>>::into)
         .fold(HashSet::new(), |mut intersections, set| {
             if intersections.is_empty() {
                 intersections = set;
@@ -107,7 +107,7 @@ fn part_two(input: &str) -> usize {
     wires
         .iter()
         .cloned()
-        .map(|x| HashSet::from(x))
+        .map(Into::<HashSet<(isize, isize)>>::into)
         .fold(HashSet::new(), |mut intersections, set| {
             if intersections.is_empty() {
                 intersections = set;
