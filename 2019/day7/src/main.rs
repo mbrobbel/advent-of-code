@@ -1,9 +1,5 @@
 use aoc_2019_intcode::Intcode;
-use std::{
-    collections::{HashMap, HashSet},
-    error::Error,
-    io::Read,
-};
+use std::{collections::HashSet, error::Error, io::Read};
 
 fn part_one(program: Vec<isize>, phase_setting: Vec<isize>) -> isize {
     (0..5).fold(0isize, |acc, x| {
@@ -28,14 +24,17 @@ fn part_two(program: Vec<isize>, phase_setting: Vec<isize>) -> isize {
 
     // Feedback loop
     for i in (0..5).cycle() {
-        println!("{:?}", i % 5);
-        if let Some(output) = amps[i % 5].output.pop_front() {
-            amps[i].run(vec![output]);
-        } else {
+        if amps[i].done {
             break;
+        } else {
+            if let Some(output) = amps[i].output.pop_front() {
+                amps[(i + 1) % 5].run(vec![output]);
+            } else {
+                unreachable!()
+            }
         }
     }
-    0isize
+    amps[0].input.pop_front().unwrap()
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -69,6 +68,26 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
     });
     println!("part_one: {:?}", max);
+
+    let mut max = 0;
+    let mut set: HashSet<isize> = HashSet::with_capacity(5);
+    (5..10).for_each(|i| {
+        (5..10).for_each(|j| {
+            (5..10).for_each(|k| {
+                (5..10).for_each(|l| {
+                    (5..10).for_each(|m| {
+                        let sequence = vec![i, j, k, l, m];
+                        set.clear();
+                        set.extend(sequence.clone());
+                        if set.len() == 5 {
+                            max = part_two(program.clone(), sequence).max(max);
+                        }
+                    })
+                })
+            })
+        })
+    });
+    println!("part_two: {:?}", max);
 
     Ok(())
 }

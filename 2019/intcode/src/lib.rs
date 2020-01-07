@@ -116,6 +116,7 @@ impl Memory {
 #[derive(Debug)]
 pub struct Intcode {
     program_counter: usize,
+    pub done: bool,
     pub memory: Memory,
     pub input: VecDeque<isize>,
     pub output: VecDeque<isize>,
@@ -125,6 +126,7 @@ impl Intcode {
     pub fn load(program: Program) -> Self {
         Intcode {
             program_counter: 0,
+            done: false,
             memory: Memory::init(program),
             input: VecDeque::new(),
             output: VecDeque::new(),
@@ -156,11 +158,12 @@ impl Intcode {
                 Instruction::Equals(a, b, dest) => {
                     self.memory.store(dest, (a == b).into());
                 }
-                Instruction::Halt => break,
+                Instruction::Halt => {
+                    self.done = true;
+                    break;
+                }
                 _ => {}
             }
-            println!("{:?}", instruction);
-            println!("{:?}", self);
         }
         self
     }
