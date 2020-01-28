@@ -42,6 +42,13 @@ name = "aoc-2019-day8"
 version = "0.1.0"
 
 [[package]]
+name = "aoc-2019-day9"
+version = "0.1.0"
+dependencies = [
+ "aoc-2019-intcode 0.1.0",
+]
+
+[[package]]
 name = "aoc-2019-intcode"
 version = "0.1.0"
 

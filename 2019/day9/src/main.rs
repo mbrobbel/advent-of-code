@@ -7,15 +7,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!(
         "part 1: {:?}",
-        Intcode::from_str(&input)
-            .unwrap()
-            .run(vec![1])
-            .wait()
-            .output
+        Intcode::from_str(&input).unwrap().run(vec![1]).output
     );
     println!(
         "part 2: {:?}",
-        Intcode::from_str(&input).unwrap().run(vec![5]).output
+        Intcode::from_str(&input).unwrap().run(vec![2]).output
     );
 
     Ok(())

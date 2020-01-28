@@ -26,12 +26,10 @@ fn part_two(program: Vec<isize>, phase_setting: Vec<isize>) -> isize {
     for i in (0..5).cycle() {
         if amps[i].done {
             break;
+        } else if let Some(output) = amps[i].output.pop_front() {
+            amps[(i + 1) % 5].run(vec![output]);
         } else {
-            if let Some(output) = amps[i].output.pop_front() {
-                amps[(i + 1) % 5].run(vec![output]);
-            } else {
-                unreachable!()
-            }
+            unreachable!()
         }
     }
     amps[0].input.pop_front().unwrap()
