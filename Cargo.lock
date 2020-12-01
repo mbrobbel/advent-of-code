@@ -8,7 +8,7 @@ version = "0.1.0"
 name = "aoc-2019-day2"
 version = "0.1.0"
 dependencies = [
- "aoc-2019-intcode 0.1.0",
+ "aoc-2019-intcode",
 ]
 
 [[package]]
@@ -23,7 +23,7 @@ version = "0.1.0"
 name = "aoc-2019-day5"
 version = "0.1.0"
 dependencies = [
- "aoc-2019-intcode 0.1.0",
+ "aoc-2019-intcode",
 ]
 
 [[package]]
@@ -34,7 +34,7 @@ version = "0.1.0"
 name = "aoc-2019-day7"
 version = "0.1.0"
 dependencies = [
- "aoc-2019-intcode 0.1.0",
+ "aoc-2019-intcode",
 ]
 
 [[package]]
@@ -45,10 +45,13 @@ version = "0.1.0"
 name = "aoc-2019-day9"
 version = "0.1.0"
 dependencies = [
- "aoc-2019-intcode 0.1.0",
+ "aoc-2019-intcode",
 ]
 
 [[package]]
 name = "aoc-2019-intcode"
 version = "0.1.0"
 
+[[package]]
+name = "aoc-2020-day1"
+version = "0.1.0"
