@@ -1,5 +1,10 @@
 # Advent of Code 🦀
 
+## 2020 🎄
+
+- [Day 1](2020/day1/src/main.rs)
+- [Day 2](2020/day2/src/main.rs)
+
 ## 2019 🎄
 
 - [Day 1](2019/day1/src/main.rs)
@@ -12,5 +17,3 @@
 - [Day 8](2019/day8/src/main.rs)
 - [Day 9](2019/day8/src/main.rs)
 - [Intcode](2019/intcode/src/lib.rs)
-
-## 2018
