@@ -3,6 +3,7 @@
 ## 2021 🎄
 
 - [Day 1](2021/day1/src/main.rs)
+- [Day 2](2021/day2/src/main.rs)
 
 ## 2020 🎄
 
