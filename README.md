@@ -9,6 +9,7 @@
 - [Day 5](2020/day5/src/main.rs)
 - [Day 6](2020/day6/src/main.rs)
 - [Day 7](2020/day7/src/main.rs)
+- [Day 8](2020/day8/src/main.rs)
 
 ## 2019 🎄
 
