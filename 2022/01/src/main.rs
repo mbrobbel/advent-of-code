@@ -1,8 +1,8 @@
-use std::{cmp::Reverse, collections::BinaryHeap, fs};
+use std::{cmp::Reverse, collections::BinaryHeap, fs, io::Error};
 
 fn sum_calories(input: &str) -> usize {
     input
-        .split("\n")
+        .split('\n')
         .filter_map(|calories| calories.parse::<usize>().ok())
         .sum()
 }
@@ -29,7 +29,7 @@ fn two(input: &str) -> usize {
         .sum()
 }
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> Result<(), Error> {
     let input = fs::read_to_string("input")?;
     println!("1: {}", one(&input));
     println!("2: {}", two(&input));
