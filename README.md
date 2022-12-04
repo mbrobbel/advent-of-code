@@ -5,6 +5,7 @@
 - [Day 1](2022/01/src/main.rs)
 - [Day 2](2022/02/src/main.rs)
 - [Day 3](2022/03/src/main.rs)
+- [Day 4](2022/04/src/main.rs)
 
 ## 2021 🎄
 
