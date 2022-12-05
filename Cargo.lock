@@ -87,6 +87,10 @@ name = "aoc-2022-04"
 version = "0.1.0"
 
 [[package]]
+name = "aoc-2022-05"
+version = "0.1.0"
+
+[[package]]
 name = "beef"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
