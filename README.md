@@ -7,6 +7,7 @@
 - [Day 3](2022/03/src/main.rs)
 - [Day 4](2022/04/src/main.rs)
 - [Day 5](2022/05/src/main.rs)
+- [Day 6](2022/06/src/main.rs)
 
 ## 2021 🎄
 
