@@ -1,5 +1,9 @@
 # Advent of Code 🦀
 
+## 2023 🎄
+
+- [Day 1](2023/rs/src/bin/1.rs)
+
 ## 2022 🎄
 
 - [Day 1](2022/01/src/main.rs)
