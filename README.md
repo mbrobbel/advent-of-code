@@ -4,6 +4,7 @@
 
 - [Day 1](2024/rs/src/bin/01.rs)
 - [Day 2](2024/rs/src/bin/02.rs)
+- [Day 3](2024/rs/src/bin/03.rs)
 
 ## 2023 🎄
 

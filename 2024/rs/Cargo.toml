@@ -5,6 +5,5 @@ authors = ["Matthijs Brobbel <m1brobbel@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-
-[[bin]]
-name = "01"
+logos = "0.14.3"
+regex = "1.11.1"
